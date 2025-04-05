@@ -1,2 +1,7 @@
-Š·B}á+ß«‹­Û­XSTw…êÚÂSY#­ÄŸKÛê3¦Õ
-dMT}ìf–Û¬4Œ¶*çüF
+This is a demo file for testing the Go-based file encryption tool.
+
+Feel free to encrypt and decrypt this file using the CLI.
+
+Encryption uses AES-GCM with a 256-bit key derived from a password using PBKDF2.
+
+Made with â¤ï¸ by Paras Jain
