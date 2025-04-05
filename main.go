@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"unicode"
 
 	"github.com/ParasJain0307/Encryption-With-Go/filecrypt"
 	"golang.org/x/term"
@@ -85,18 +86,68 @@ func decryptHandler() {
 }
 
 func getPassword() []byte {
-	fmt.Print("Enter password: ")
-	pwd1, _ := term.ReadPassword(0)
+	var password []byte
+	for {
+		fmt.Print("Enter password: ")
+		pwd1, _ := term.ReadPassword(0)
 
-	fmt.Print("\nConfirm password: ")
-	pwd2, _ := term.ReadPassword(0)
+		if err := validatePasswordStrength(pwd1); err != nil {
+			fmt.Printf("\n %s\n\n", err.Error())
+			continue
+		}
 
-	if !bytes.Equal(pwd1, pwd2) {
-		fmt.Println("\n[ERROR] Passwords do not match. Try again.")
-		return getPassword()
+		fmt.Print("\nConfirm password: ")
+		pwd2, _ := term.ReadPassword(0)
+
+		if !bytes.Equal(pwd1, pwd2) {
+			fmt.Println("\n[ERROR] Passwords do not match. Try again.")
+			continue
+		}
+
+		password = pwd1
+		break
 	}
 
-	return pwd1
+	return password
+}
+
+func validatePasswordStrength(password []byte) error {
+	var hasMinLen, hasUpper, hasLower, hasNumber, hasSpecial bool
+
+	if len(password) >= 8 {
+		hasMinLen = true
+	}
+
+	for _, char := range string(password) {
+		switch {
+		case unicode.IsUpper(char):
+			hasUpper = true
+		case unicode.IsLower(char):
+			hasLower = true
+		case unicode.IsDigit(char):
+			hasNumber = true
+		case unicode.IsPunct(char) || unicode.IsSymbol(char):
+			hasSpecial = true
+		}
+	}
+
+	if !hasMinLen {
+		return fmt.Errorf("Password must be at least 8 characters")
+	}
+	if !hasUpper {
+		return fmt.Errorf("Password must contain at least one uppercase letter")
+	}
+	if !hasLower {
+		return fmt.Errorf("Password must contain at least one lowercase letter")
+	}
+	if !hasNumber {
+		return fmt.Errorf("Password must contain at least one number")
+	}
+	if !hasSpecial {
+		return fmt.Errorf("Password must contain at least one special character")
+	}
+
+	return nil
 }
 
 func validateFile(file string) bool {
